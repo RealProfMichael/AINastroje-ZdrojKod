@@ -1,0 +1,49 @@
+public class Kalkulátor {
+
+    // Sčítání
+    public int scitaj(int a, int b) {
+        return a + b;
+    }
+
+    // Odčítání
+    public int odcitaj(int a, int b) {
+        return a - b;
+    }
+
+    // Násobení
+    public int nasob(int a, int b) {
+        return a * b;
+    }
+
+    // Dělení
+    public int del(int a, int b) {
+        if (b == 0) {
+            throw new ArithmeticException("Dělení nulou není povoleno!");
+        }
+        return a / b;
+    }
+}
+
+public class TestKalkulator {
+
+    public static void main(String[] args) {
+        // Vytvoření instance Kalkulátoru
+        Kalkulátor kalkulátor = new Kalkulátor();
+
+        // Ověření operací
+        int a = 10;
+        int b = 5;
+
+        System.out.println("Sčítání: " + a + " + " + b + " = " + kalkulátor.scitaj(a, b));
+        System.out.println("Odčítání: " + a + " - " + b + " = " + kalkulátor.odcitaj(a, b));
+        System.out.println("Násobení: " + a + " * " + b + " = " + kalkulátor.nasob(a, b));
+        System.out.println("Dělení: " + a + " / " + b + " = " + kalkulátor.del(a, b));
+        
+        // Ověření dělení nulou
+        try {
+            System.out.println("Dělení: " + a + " / 0 = " + kalkulátor.del(a, 0));
+        } catch (ArithmeticException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
