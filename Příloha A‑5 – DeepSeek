@@ -1,0 +1,73 @@
+// Třída Kalkulator s implementací základních operací
+public class Kalkulator {
+    
+    /**
+     * Sečte dvě celá čísla
+     * @param a první sčítanec
+     * @param b druhý sčítanec
+     * @return součet a + b
+     */
+    public int secti(int a, int b) {
+        return a + b;
+    }
+    
+    /**
+     * Odečte dvě celá čísla
+     * @param a menšenec
+     * @param b menšitel
+     * @return rozdíl a - b
+     */
+    public int odecti(int a, int b) {
+        return a - b;
+    }
+    
+    /**
+     * Vynásobí dvě celá čísla
+     * @param a první činitel
+     * @param b druhý činitel
+     * @return součin a * b
+     */
+    public int vynasob(int a, int b) {
+        return a * b;
+    }
+    
+    /**
+     * Vydělí dvě celá čísla
+     * @param a dělenec
+     * @param b dělitel
+     * @return podíl a / b
+     * @throws ArithmeticException pokud je dělitel nulový
+     */
+    public int vydel(int a, int b) {
+        if (b == 0) {
+            throw new ArithmeticException("Nelze dělit nulou!");
+        }
+        return a / b;
+    }
+}
+
+// Spustitelná třída pro ověření funkcionality
+public class TestKalkulator {
+    public static void main(String[] args) {
+        Kalkulator kalkulator = new Kalkulator();
+        
+        // Testování sčítání
+        System.out.println("10 + 5 = " + kalkulator.secti(10, 5));
+        
+        // Testování odčítání
+        System.out.println("10 - 5 = " + kalkulator.odecti(10, 5));
+        
+        // Testování násobení
+        System.out.println("10 * 5 = " + kalkulator.vynasob(10, 5));
+        
+        // Testování dělení
+        System.out.println("10 / 5 = " + kalkulator.vydel(10, 5));
+        
+        // Testování dělení nulou
+        try {
+            System.out.println("10 / 0 = " + kalkulator.vydel(10, 0));
+        } catch (ArithmeticException e) {
+            System.out.println("Chyba: " + e.getMessage());
+        }
+    }
+}
