@@ -1,0 +1,176 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.util.ArrayList;
+import java.util.List;
+
+abstract class Tvar {
+    protected int x, y;
+    protected Color barva;
+
+    public Tvar(int x, int y, Color barva) {
+        this.x = x;
+        this.y = y;
+        this.barva = barva;
+    }
+
+    public abstract void vykresli(Graphics g);
+}
+
+class Kruh extends Tvar {
+    private int prumer;
+
+    public Kruh(int x, int y, Color barva, int prumer) {
+        super(x, y, barva);
+        this.prumer = prumer;
+    }
+
+    @Override
+    public void vykresli(Graphics g) {
+        g.setColor(barva);
+        g.fillOval(x - prumer / 2, y - prumer / 2, prumer, prumer);
+    }
+}
+
+class Obdelnik extends Tvar {
+    private int sirka, vyska;
+
+    public Obdelnik(int x, int y, Color barva, int sirka, int vyska) {
+        super(x, y, barva);
+        this.sirka = sirka;
+        this.vyska = vyska;
+    }
+
+    @Override
+    public void vykresli(Graphics g) {
+        g.setColor(barva);
+        g.fillRect(x, y, sirka, vyska);
+    }
+}
+
+class PaintPanel extends JPanel {
+    private List<Tvar> tvary = new ArrayList<>();
+    private Color aktualniBarva = Color.BLACK;
+
+    public PaintPanel() {
+        setBackground(Color.WHITE);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    tvary.add(new Kruh(e.getX(), e.getY(), aktualniBarva, 20));
+                    repaint();
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
+                    tvary.add(new Obdelnik(e.getX(), e.getY(), aktualniBarva, 50, 30));
+                    repaint();
+                }
+            }
+        });
+    }
+
+    public void setAktualniBarva(Color barva) {
+        this.aktualniBarva = barva;
+    }
+
+    public void reset() {
+        tvary.clear();
+        repaint();
+    }
+
+    public void uloz(File file) {
+        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INTRGB);
+        Graphics2D g2d = image.createGraphics();
+        printAll(g2d);
+        g2d.dispose();
+        try {
+            ImageIO.write(image, "png", file);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        for (Tvar tvar : tvary) {
+            tvar.vykresli(g);
+        }
+    }
+}
+
+public class PaintAplikace {
+    private JFrame frame;
+    private PaintPanel panel;
+
+    public PaintAplikace() {
+        frame = new JFrame("Jednoduchý Paint");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+
+        panel = new PaintPanel();
+        frame.add(panel, BorderLayout.CENTER);
+
+        JPanel toolbar = new JPanel();
+        JButton cervenaButton = new JButton("Červená");
+        cervenaButton.addActionListener(e -> panel.setAktualniBarva(Color.RED));
+        JButton modraButton = new JButton("Modrá");
+        modraButton.addActionListener(e -> panel.setAktualniBarva(Color.BLUE));
+        JButton resetovatButton = new JButton("Resetovat");
+        resetovatButton.addActionListener(e -> panel.reset());
+        JButton ulozitButton = new JButton("Uložit");
+        ulozitButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                panel.uloz(fileChooser.getSelectedFile());
+            }
+        });
+
+        toolbar.add(cervenaButton);
+        toolbar.add(modraButton);
+        toolbar.add(resetovatButton);
+        toolbar.add(ulozitButton);
+
+        frame.add(toolbar, BorderLayout.NORTH);
+    }
+
+    public void zobraz() {
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            PaintAplikace aplikace = new PaintAplikace();
+            aplikace.zobraz();
+        });
+    }
+}
+
+
+import java.io.File;
+
+public class PaintAplikaceTest {
+
+    public static void main(String[] args) {
+        PaintAplikace aplikace = new PaintAplikace();
+        aplikace.zobraz();
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        File testFile = new File("test_paint.png");
+        aplikace.panel.uloz(testFile);
+
+        if (testFile.exists()) {
+            System.out.println("Ukládání funguje správně.");
+        } else {
+            System.out.println("Ukládání nefunguje.");
+        }
+    }
+}
