@@ -1,0 +1,185 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class MainApplication extends JFrame {
+
+    private DrawingPanel drawingPanel;
+
+    public MainApplication() {
+        setTitle("MS Paint-like Application");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Create toolbar
+        JToolBar toolbar = new JToolBar();
+        JButton saveButton = new JButton("Save");
+        JButton resetButton = new JButton("Reset");
+        toolbar.add(saveButton);
+        toolbar.add(resetButton);
+        add(toolbar, BorderLayout.NORTH);
+
+        // Create drawing panel
+        drawingPanel = new DrawingPanel();
+        add(drawingPanel, BorderLayout.CENTER);
+
+        // Add action listeners
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                drawingPanel.saveDrawing();
+            }
+        });
+
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                drawingPanel.resetDrawing();
+            }
+        });
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new MainApplication().setVisible(true);
+            }
+        });
+    }
+}
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
+public class DrawingPanel extends JPanel {
+
+    private BufferedImage canvas;
+    private Graphics2D g2d;
+    private int prevX, prevY, currX, currY;
+
+    public DrawingPanel() {
+        setPreferredSize(new Dimension(800, 600));
+        setBackground(Color.WHITE);
+        canvas = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+        g2d = canvas.createGraphics();
+        g2d.setColor(Color.BLACK);
+        g2d.setStroke(new BasicStroke(2));
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                prevX = e.getX();
+                prevY = e.getY();
+            }
+        });
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                currX = e.getX();
+                currY = e.getY();
+                g2d.drawLine(prevX, prevY, currX, currY);
+                repaint();
+                prevX = currX;
+                prevY = currY;
+            }
+        });
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(canvas, 0, 0, null);
+    }
+
+    public void saveDrawing() {
+        try {
+            ImageIO.write(canvas, "PNG", new File("drawing.png"));
+            JOptionPane.showMessageDialog(this, "Drawing saved!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to save drawing!");
+        }
+    }
+
+    public void resetDrawing() {
+        g2d.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        repaint();
+    }
+}
+
+
+import java.awt.*;
+
+public abstract class Shape {
+    protected int x, y;
+
+    public Shape(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public abstract void draw(Graphics2D g2d);
+}
+
+
+import java.awt.*;
+
+public class Line extends Shape {
+    private int x2, y2;
+
+    public Line(int x, int y, int x2, int y2) {
+        super(x, y);
+        this.x2 = x2;
+        this.y2 = y2;
+    }
+
+    @Override
+    public void draw(Graphics2D g2d) {
+        g2d.drawLine(x, y, x2, y2);
+    }
+}
+
+
+import org.junit.jupiter.api.Test;
+
+import javax.swing.*;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+public class MainApplicationTest {
+
+    @Test
+    public void testApplicationStartup() {
+        assertDoesNotThrow(() -> {
+            SwingUtilities.invokeAndWait(() -> {
+                MainApplication app = new MainApplication();
+                app.setVisible(true);
+                app.dispose();
+            });
+        });
+    }
+
+    @Test
+    public void testSaveFunctionality() {
+        assertDoesNotThrow(() -> {
+            SwingUtilities.invokeAndWait(() -> {
+                MainApplication app = new MainApplication();
+                app.setVisible(true);
+                app.drawingPanel.saveDrawing();
+                app.dispose();
+            });
+        });
+    }
+}
