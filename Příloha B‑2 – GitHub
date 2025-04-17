@@ -1,0 +1,120 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
+
+public class TextAnalyzerGUI {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Text Analyzer");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+        
+        // Create GUI components
+        JTextField textField1 = new JTextField(20);
+        JTextField textField2 = new JTextField(20);
+        JButton analyzeButton = new JButton("Analyze");
+        JTextArea resultArea = new JTextArea();
+        resultArea.setEditable(false);
+        
+        // Set layout
+        frame.setLayout(new FlowLayout());
+        
+        // Add components to the frame
+        frame.add(new JLabel("Text Field 1:"));
+        frame.add(textField1);
+        frame.add(new JLabel("Text Field 2:"));
+        frame.add(textField2);
+        frame.add(analyzeButton);
+        frame.add(new JScrollPane(resultArea));
+        
+        // Add action listener to the button
+        analyzeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text1 = textField1.getText();
+                String text2 = textField2.getText();
+                String mergedText = text1 + " " + text2;
+                
+                // Perform text analysis
+                int wordCount = countWords(mergedText);
+                String longestWord = findLongestWord(mergedText);
+                String shortestWord = findShortestWord(mergedText);
+                Map<String, Integer> wordFrequency = calculateWordFrequency(mergedText);
+                
+                // Display the results
+                resultArea.setText("Word Count: " + wordCount + "\n");
+                resultArea.append("Longest Word: " + longestWord + "\n");
+                resultArea.append("Shortest Word: " + shortestWord + "\n");
+                resultArea.append("Word Frequency:\n");
+                for (Map.Entry<String, Integer> entry : wordFrequency.entrySet()) {
+                    resultArea.append(entry.getKey() + ": " + entry.getValue() + "\n");
+                }
+            }
+        });
+        
+        // Display the frame
+        frame.setVisible(true);
+    }
+    
+    private static int countWords(String text) {
+        String[] words = text.split("\\s+");
+        return words.length;
+    }
+    
+    private static String findLongestWord(String text) {
+        String[] words = text.split("\\s+");
+        String longestWord = "";
+        for (String word : words) {
+            if (word.length() > longestWord.length()) {
+                longestWord = word;
+            }
+        }
+        return longestWord;
+    }
+    
+    private static String findShortestWord(String text) {
+        String[] words = text.split("\\s+");
+        String shortestWord = words.length > 0 ? words[0] : "";
+        for (String word : words) {
+            if (word.length() < shortestWord.length()) {
+                shortestWord = word;
+            }
+        }
+        return shortestWord;
+    }
+    
+    private static Map<String, Integer> calculateWordFrequency(String text) {
+        String[] words = text.split("\\s+");
+        Map<String, Integer> wordFrequency = new HashMap<>();
+        for (String word : words) {
+            word = word.toLowerCase();
+            wordFrequency.put(word, wordFrequency.getOrDefault(word, 0) + 1);
+        }
+        return wordFrequency;
+    }
+}
+
+
+public class TextAnalyzerTest {
+    public static void main(String[] args) {
+        String text1 = "Hello world";
+        String text2 = "This is a test";
+        String mergedText = text1 + " " + text2;
+        
+        // Perform text analysis
+        int wordCount = TextAnalyzerGUI.countWords(mergedText);
+        String longestWord = TextAnalyzerGUI.findLongestWord(mergedText);
+        String shortestWord = TextAnalyzerGUI.findShortestWord(mergedText);
+        Map<String, Integer> wordFrequency = TextAnalyzerGUI.calculateWordFrequency(mergedText);
+        
+        // Display the results
+        System.out.println("Word Count: " + wordCount);
+        System.out.println("Longest Word: " + longestWord);
+        System.out.println("Shortest Word: " + shortestWord);
+        System.out.println("Word Frequency:");
+        for (Map.Entry<String, Integer> entry : wordFrequency.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+}
