@@ -1,0 +1,134 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.imageio.ImageIO;
+
+public class PaintApp {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new PaintFrame();
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+        });
+    }
+}
+
+class PaintFrame extends JFrame {
+    private final PaintPanel paintPanel;
+    private final JButton saveButton;
+    private final JButton resetButton;
+
+    public PaintFrame() {
+        setTitle("MS Paint-Like Application");
+        setSize(800, 600);
+        setLocationRelativeTo(null);
+
+        // Panel pro kreslení
+        paintPanel = new PaintPanel();
+        add(paintPanel, BorderLayout.CENTER);
+
+        // Panel pro toolbar
+        JPanel toolbar = new JPanel();
+        toolbar.setLayout(new FlowLayout());
+
+        // Tlačítko pro uložení
+        saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> paintPanel.saveImage());
+        toolbar.add(saveButton);
+
+        // Tlačítko pro resetování
+        resetButton = new JButton("Reset");
+        resetButton.addActionListener(e -> paintPanel.resetCanvas());
+        toolbar.add(resetButton);
+
+        add(toolbar, BorderLayout.NORTH);
+    }
+}
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+
+class PaintPanel extends JPanel {
+    private BufferedImage canvas;
+    private Graphics2D g2d;
+    private int prevX, prevY;
+
+    public PaintPanel() {
+        // Vytvoření prázdné plátna
+        canvas = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+        g2d = canvas.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setColor(Color.BLACK);
+        g2d.setStroke(new BasicStroke(2));
+
+        // Vytvoření posluchačů událostí pro kreslení
+        addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                prevX = e.getX();
+                prevY = e.getY();
+            }
+        });
+
+        addMouseMotionListener(new MouseAdapter() {
+            public void mouseDragged(MouseEvent e) {
+                int x = e.getX();
+                int y = e.getY();
+                g2d.drawLine(prevX, prevY, x, y);
+                prevX = x;
+                prevY = y;
+                repaint();
+            }
+        });
+    }
+
+    // Funkce pro resetování plátna
+    public void resetCanvas() {
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        g2d.setColor(Color.BLACK);
+        repaint();
+    }
+
+    // Funkce pro uložení kresby
+    public void saveImage() {
+        try {
+            File file = new File("drawing.png");
+            ImageIO.write(canvas, "PNG", file);
+            JOptionPane.showMessageDialog(this, "Image saved as drawing.png");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving image: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(canvas, 0, 0, null);
+    }
+}
+
+
+import javax.swing.*;
+
+public class PaintTest {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                // Testování spuštění aplikace
+                JFrame testFrame = new PaintFrame();
+                testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                testFrame.setVisible(true);
+                
+                // Předpokládáme, že po nějaké interakci uživatel může uložit nebo resetovat
+                JOptionPane.showMessageDialog(testFrame, "Application started. You can now draw and save.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error initializing application: " + e.getMessage());
+            }
+        });
+    }
+}
