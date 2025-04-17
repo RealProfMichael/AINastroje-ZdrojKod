@@ -1,0 +1,98 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
+
+public class TextAnalyzer extends JFrame {
+    private JTextField textField1;
+    private JTextField textField2;
+    private JTextArea resultArea;
+
+    public TextAnalyzer() {
+        setTitle("Text Analyzer");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 400);
+        setLayout(new BorderLayout());
+
+        // Create input panel
+        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        inputPanel.add(new JLabel("Text Field 1:"));
+        textField1 = new JTextField();
+        inputPanel.add(textField1);
+
+        inputPanel.add(new JLabel("Text Field 2:"));
+        textField2 = new JTextField();
+        inputPanel.add(textField2);
+
+        // Create button
+        JButton analyzeButton = new JButton("Analyze");
+        analyzeButton.addActionListener(new AnalyzeButtonListener());
+
+        // Create result area
+        resultArea = new JTextArea();
+        resultArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(resultArea);
+
+        // Add components to frame
+        add(inputPanel, BorderLayout.NORTH);
+        add(analyzeButton, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.SOUTH);
+    }
+
+    private class AnalyzeButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String text1 = textField1.getText();
+            String text2 = textField2.getText();
+            String combinedText = text1 + " " + text2;
+
+            // Analyze the text
+            String[] words = combinedText.split("\\s+");
+            int wordCount = words.length;
+
+            // Find shortest and longest words
+            String shortestWord = words.length > 0 ? words[0] : "";
+            String longestWord = words.length > 0 ? words[0] : "";
+            
+            for (String word : words) {
+                if (word.length() < shortestWord.length()) {
+                    shortestWord = word;
+                }
+                if (word.length() > longestWord.length()) {
+                    longestWord = word;
+                }
+            }
+
+            // Calculate word frequency
+            Map<String, Integer> wordFrequency = new HashMap<>();
+            for (String word : words) {
+                wordFrequency.put(word, wordFrequency.getOrDefault(word, 0) + 1);
+            }
+
+            // Display results
+            StringBuilder result = new StringBuilder();
+            result.append("Analysis Results:\n");
+            result.append("-----------------\n");
+            result.append("Total words: ").append(wordCount).append("\n");
+            result.append("Shortest word: '").append(shortestWord).append("' (").append(shortestWord.length()).append(" characters)\n");
+            result.append("Longest word: '").append(longestWord).append("' (").append(longestWord.length()).append(" characters)\n");
+            result.append("\nWord Frequency:\n");
+            
+            for (Map.Entry<String, Integer> entry : wordFrequency.entrySet()) {
+                result.append("'").append(entry.getKey()).append("': ").append(entry.getValue()).append(" times\n");
+            }
+
+            resultArea.setText(result.toString());
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            TextAnalyzer analyzer = new TextAnalyzer();
+            analyzer.setVisible(true);
+        });
+    }
+}
