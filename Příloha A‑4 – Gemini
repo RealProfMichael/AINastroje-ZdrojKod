@@ -1,0 +1,49 @@
+// Třída Kalkulator
+public class Kalkulator {
+
+    // Metoda pro sčítání
+    public int secti(int a, int b) {
+        return a + b;
+    }
+
+    // Metoda pro odčítání
+    public int odecti(int a, int b) {
+        return a - b;
+    }
+
+    // Metoda pro násobení
+    public int nasob(int a, int b) {
+        return a * b;
+    }
+
+    // Metoda pro dělení
+    public int del(int a, int b) {
+        if (b == 0) {
+            throw new IllegalArgumentException("Dělení nulou není povoleno.");
+        }
+        return a / b;
+    }
+}
+
+// Spustitelná třída pro ověření Kalkulatoru
+public class TestKalkulatoru {
+
+    public static void main(String[] args) {
+        Kalkulator kalkulator = new Kalkulator();
+
+        int cislo1 = 10;
+        int cislo2 = 5;
+
+        System.out.println(cislo1 + " + " + cislo2 + " = " + kalkulator.secti(cislo1, cislo2));
+        System.out.println(cislo1 + " - " + cislo2 + " = " + kalkulator.odecti(cislo1, cislo2));
+        System.out.println(cislo1 + " * " + cislo2 + " = " + kalkulator.nasob(cislo1, cislo2));
+        System.out.println(cislo1 + " / " + cislo2 + " = " + kalkulator.del(cislo1, cislo2));
+
+        // Testování dělení nulou
+        try {
+            System.out.println(cislo1 + " / 0 = " + kalkulator.del(cislo1, 0));
+        } catch (IllegalArgumentException e) {
+            System.out.println("Chyba: " + e.getMessage());
+        }
+    }
+}
