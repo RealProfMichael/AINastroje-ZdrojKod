@@ -1,0 +1,82 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.imageio.ImageIO;
+
+class PaintApp {
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(PaintFrame::new);
+    }
+}
+
+class PaintFrame extends JFrame {
+    private final JPanel canvas;
+    private final JButton saveButton, resetButton;
+
+    public PaintFrame() {
+        setTitle("MS Paint-like App");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Toolbar
+        JToolBar toolbar = new JToolBar();
+        saveButton = new JButton("Save");
+        resetButton = new JButton("Reset");
+        toolbar.add(saveButton);
+        toolbar.add(resetButton);
+        add(toolbar, BorderLayout.NORTH);
+
+        // Canvas
+        canvas = new JPanel() {
+            private Point startPoint = null;
+
+            {
+                addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        startPoint = e.getPoint();
+                    }
+                });
+
+                addMouseMotionListener(new MouseMotionAdapter() {
+                    public void mouseDragged(MouseEvent e) {
+                        if (startPoint != null) {
+                            Graphics g = getGraphics();
+                            g.setColor(Color.BLACK);
+                            g.drawRect(startPoint.x, startPoint.y, e.getX() - startPoint.x, e.getY() - startPoint.y);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                setBackground(Color.WHITE);
+            }
+        };
+        add(canvas, BorderLayout.CENTER);
+
+        // Button actions
+        saveButton.addActionListener(e -> saveCanvas());
+        resetButton.addActionListener(e -> canvas.repaint());
+
+        setVisible(true);
+    }
+
+    private void saveCanvas() {
+        BufferedImage image = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = image.createGraphics();
+        canvas.paint(g2d);
+        g2d.dispose();
+
+        try {
+            ImageIO.write(image, "png", new File("drawing.png"));
+            JOptionPane.showMessageDialog(this, "Kresba uložena jako 'drawing.png'.");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Chyba při ukládání kresby.");
+        }
+    }
+}
