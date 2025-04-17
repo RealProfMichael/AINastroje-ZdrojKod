@@ -1,0 +1,106 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+
+public class TextAnalyzer extends JFrame {
+    private JTextArea textArea1, textArea2;
+    private JTextArea resultArea;
+    private JButton analyzeButton;
+
+    public TextAnalyzer() {
+        // Nastavení okna
+        setTitle("Text Analyzer");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Vytvoření textových polí
+        textArea1 = new JTextArea(5, 30);
+        textArea2 = new JTextArea(5, 30);
+        resultArea = new JTextArea(10, 30);
+        resultArea.setEditable(false);
+
+        // Vytvoření tlačítka pro analýzu
+        analyzeButton = new JButton("Analyze");
+        analyzeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                analyzeText();
+            }
+        });
+
+        // Panel pro textová pole a tlačítko
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(3, 1));
+        inputPanel.add(new JScrollPane(textArea1));
+        inputPanel.add(new JScrollPane(textArea2));
+        inputPanel.add(analyzeButton);
+
+        // Panel pro výstupní výsledky
+        JPanel resultPanel = new JPanel();
+        resultPanel.setLayout(new BorderLayout());
+        resultPanel.add(new JLabel("Analysis Results"), BorderLayout.NORTH);
+        resultPanel.add(new JScrollPane(resultArea), BorderLayout.CENTER);
+
+        // Přidání panelů do okna
+        add(inputPanel, BorderLayout.NORTH);
+        add(resultPanel, BorderLayout.CENTER);
+    }
+
+    // Metoda pro analýzu textu
+    private void analyzeText() {
+        String text1 = textArea1.getText().trim();
+        String text2 = textArea2.getText().trim();
+
+        // Spojení textů
+        String combinedText = text1 + " " + text2;
+        
+        if (combinedText.isEmpty()) {
+            resultArea.setText("Please enter some text.");
+            return;
+        }
+
+        // Počet slov
+        String[] words = combinedText.split("\\s+");
+        int wordCount = words.length;
+
+        // Nejdelší a nejkratší slovo
+        String longestWord = "", shortestWord = words[0];
+        for (String word : words) {
+            if (word.length() > longestWord.length()) {
+                longestWord = word;
+            }
+            if (word.length() < shortestWord.length()) {
+                shortestWord = word;
+            }
+        }
+
+        // Četnost slov
+        Map<String, Integer> wordFrequency = new HashMap<>();
+        for (String word : words) {
+            word = word.toLowerCase(); // Pro neviditelné rozdíly mezi malými a velkými písmeny
+            wordFrequency.put(word, wordFrequency.getOrDefault(word, 0) + 1);
+        }
+
+        // Zobrazení výsledků
+        StringBuilder resultText = new StringBuilder();
+        resultText.append("Word count: ").append(wordCount).append("\n");
+        resultText.append("Longest word: ").append(longestWord).append("\n");
+        resultText.append("Shortest word: ").append(shortestWord).append("\n");
+        resultText.append("\nWord frequency:\n");
+        for (Map.Entry<String, Integer> entry : wordFrequency.entrySet()) {
+            resultText.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+
+        resultArea.setText(resultText.toString());
+    }
+
+    // Spustitelná metoda pro testování
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new TextAnalyzer().setVisible(true);
+            }
+        });
+    }
+}
