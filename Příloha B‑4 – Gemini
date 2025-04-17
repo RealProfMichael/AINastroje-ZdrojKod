@@ -1,0 +1,122 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TextAnalyzerGUI extends JFrame {
+
+    private JTextField textField1;
+    private JTextField textField2;
+    private JTextArea resultTextArea;
+
+    public TextAnalyzerGUI() {
+        setTitle("Analyzátor textu");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(2, 2));
+
+        inputPanel.add(new JLabel("Text 1:"));
+        textField1 = new JTextField();
+        inputPanel.add(textField1);
+
+        inputPanel.add(new JLabel("Text 2:"));
+        textField2 = new JTextField();
+        inputPanel.add(textField2);
+
+        mainPanel.add(inputPanel, BorderLayout.NORTH);
+
+        JButton analyzeButton = new JButton("Analyzovat");
+        mainPanel.add(analyzeButton, BorderLayout.CENTER);
+
+        resultTextArea = new JTextArea();
+        resultTextArea.setEditable(false);
+        mainPanel.add(new JScrollPane(resultTextArea), BorderLayout.SOUTH);
+
+        add(mainPanel);
+
+        analyzeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                analyzeText();
+            }
+        });
+    }
+
+    private void analyzeText() {
+        String text1 = textField1.getText();
+        String text2 = textField2.getText();
+        String combinedText = text1 + " " + text2;
+
+        String[] words = combinedText.split("\\s+");
+
+        int wordCount = words.length;
+        String shortestWord = findShortestWord(words);
+        String longestWord = findLongestWord(words);
+        Map<String, Integer> wordFrequency = calculateWordFrequency(words);
+
+        StringBuilder result = new StringBuilder();
+        result.append("Počet slov: ").append(wordCount).append("\n");
+        result.append("Nejkratší slovo: ").append(shortestWord).append("\n");
+        result.append("Nejdelší slovo: ").append(longestWord).append("\n");
+        result.append("Četnost slov:\n");
+
+        for (Map.Entry<String, Integer> entry : wordFrequency.entrySet()) {
+            result.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+
+        resultTextArea.setText(result.toString());
+    }
+
+    private String findShortestWord(String[] words) {
+        if (words.length == 0) {
+            return "";
+        }
+
+        String shortest = words[0];
+        for (String word : words) {
+            if (word.length() < shortest.length()) {
+                shortest = word;
+            }
+        }
+        return shortest;
+    }
+
+    private String findLongestWord(String[] words) {
+        if (words.length == 0) {
+            return "";
+        }
+
+        String longest = words[0];
+        for (String word : words) {
+            if (word.length() > longest.length()) {
+                longest = word;
+            }
+        }
+        return longest;
+    }
+
+    private Map<String, Integer> calculateWordFrequency(String[] words) {
+        Map<String, Integer> frequencyMap = new HashMap<>();
+        for (String word : words) {
+            frequencyMap.put(word, frequencyMap.getOrDefault(word, 0) + 1);
+        }
+        return frequencyMap;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new TextAnalyzerGUI().setVisible(true);
+            }
+        });
+    }
+}
