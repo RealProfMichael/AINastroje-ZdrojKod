@@ -1,0 +1,63 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
+
+public class TextAnalyzerApp {
+    public static void main(String[] args) {
+        // Vytvoření GUI aplikace
+        JFrame frame = new JFrame("Text Analyzer");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 1));
+        
+        JTextField textField1 = new JTextField();
+        JTextField textField2 = new JTextField();
+        JButton analyzeButton = new JButton("Analyze");
+        JTextArea resultArea = new JTextArea();
+        resultArea.setEditable(false);
+        
+        panel.add(textField1);
+        panel.add(textField2);
+        panel.add(analyzeButton);
+        panel.add(new JScrollPane(resultArea));
+        
+        frame.add(panel);
+        frame.setVisible(true);
+        
+        // Akce po stisknutí tlačítka Analyze
+        analyzeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text1 = textField1.getText();
+                String text2 = textField2.getText();
+                String combinedText = text1 + " " + text2;
+                
+                String[] words = combinedText.split("\\s+");
+                int wordCount = words.length;
+                
+                String longestWord = Arrays.stream(words).max(Comparator.comparingInt(String::length)).orElse("");
+                String shortestWord = Arrays.stream(words).min(Comparator.comparingInt(String::length)).orElse("");
+                
+                Map<String, Integer> wordFrequency = new HashMap<>();
+                for (String word : words) {
+                    wordFrequency.put(word, wordFrequency.getOrDefault(word, 0) + 1);
+                }
+                
+                StringBuilder result = new StringBuilder();
+                result.append("Word Count: ").append(wordCount).append("\n");
+                result.append("Longest Word: ").append(longestWord).append("\n");
+                result.append("Shortest Word: ").append(shortestWord).append("\n");
+                result.append("Word Frequencies:\n");
+                for (Map.Entry<String, Integer> entry : wordFrequency.entrySet()) {
+                    result.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+                }
+                
+                resultArea.setText(result.toString());
+            }
+        });
+    }
+}
